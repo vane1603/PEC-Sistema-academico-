@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Admin — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0d1117;--panel:#161b22;--border:#30363d;--accent:#5e81f4;--text:#e6edf3;--muted:#8b949e}
+    body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+
+    /* Sidebar */
+    .layout{display:flex;min-height:100vh}
+    .sidebar{width:220px;background:var(--panel);border-right:1px solid var(--border);
+      padding:1.5rem 1rem;display:flex;flex-direction:column;gap:.3rem;flex-shrink:0}
+    .sidebar .logo{font-family:'Playfair Display',serif;font-size:1.1rem;padding:.5rem .8rem 1.2rem;
+      border-bottom:1px solid var(--border);margin-bottom:.5rem}
+    .sidebar .logo span{color:var(--accent)}
+    .nav-item{padding:.6rem .8rem;border-radius:8px;font-size:.85rem;color:var(--muted);
+      cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.6rem}
+    .nav-item:hover,.nav-item.active{background:rgba(94,129,244,.12);color:var(--accent)}
+    .sidebar .logout{margin-top:auto;padding:.6rem .8rem;border-radius:8px;font-size:.85rem;
+      color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.6rem;transition:all .2s;text-decoration:none}
+    .sidebar .logout:hover{background:rgba(248,81,73,.1);color:#f85149}
+
+    /* Main */
+    .main{flex:1;padding:2rem;overflow-y:auto}
+    .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem}
+    .topbar h1{font-family:'Playfair Display',serif;font-size:1.5rem}
+    .badge{padding:.3rem .9rem;background:rgba(94,129,244,.15);border:1px solid rgba(94,129,244,.4);
+      border-radius:999px;font-size:.75rem;color:var(--accent)}
+
+    /* Stats */
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem}
+    .stat{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1.2rem;
+      transition:transform .2s}
+    .stat:hover{transform:translateY(-2px)}
+    .stat .num{font-family:'Playfair Display',serif;font-size:2rem;color:var(--accent)}
+    .stat .lbl{font-size:.78rem;color:var(--muted);margin-top:.2rem}
+
+    /* Tables */
+    .section{margin-bottom:2rem}
+    .section h2{font-size:.9rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;
+      color:var(--muted);margin-bottom:.8rem}
+    .table-wrap{background:var(--panel);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    table{width:100%;border-collapse:collapse;font-size:.85rem}
+    th{padding:.75rem 1rem;text-align:left;font-size:.72rem;text-transform:uppercase;
+      letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border)}
+    td{padding:.7rem 1rem;border-bottom:1px solid rgba(48,54,61,.5);color:var(--text)}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:rgba(255,255,255,.02)}
+
+    .pill{padding:.2rem .65rem;border-radius:999px;font-size:.72rem;font-weight:500}
+    .pill.admin  {background:rgba(94,129,244,.15);color:#5e81f4}
+    .pill.docente{background:rgba(63,185,80,.15); color:#3fb950}
+    .pill.usuario{background:rgba(232,160,69,.15);color:#e8a045}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="logo">🎓 <span>Sistema</span><br><small style="font-size:.75rem;color:var(--muted)">Académico</small></div>
+    <div class="nav-item active">🛡️ Dashboard</div>
+    <div class="nav-item">👥 Usuarios</div>
+    <div class="nav-item">📍 Sedes</div>
+    <div class="nav-item">📚 Actividades</div>
+    <div class="nav-item">📋 Asignaturas</div>
+    <div class="nav-item">📎 Evidencias</div>
+    <div class="nav-item">⚙️ Configuración</div>
+    <a href="/logout" class="logout">🚪 Cerrar sesión</a>
+  </nav>
+
+  <main class="main">
+    <div class="topbar">
+      <h1>Panel de <span style="color:var(--accent)">Administrador</span></h1>
+      <span class="badge">🛡️ {{ session.nombre }}</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="num">{{ usuarios|length }}</div><div class="lbl">Usuarios registrados</div></div>
+      <div class="stat"><div class="num">{{ actividades|length }}</div><div class="lbl">Actividades</div></div>
+      <div class="stat"><div class="num">{{ asignaturas|length }}</div><div class="lbl">Asignaturas</div></div>
+      <div class="stat"><div class="num">{{ evidencias|length }}</div><div class="lbl">Evidencias</div></div>
+    </div>
+
+    <div class="section">
+      <h2>👥 Usuarios del sistema</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Nombre</th><th>Username</th><th>Rol</th></tr></thead>
+          <tbody>
+            {% for u in usuarios %}
+            <tr>
+              <td>{{ u.id }}</td>
+              <td>{{ u.nombre }}</td>
+              <td>{{ u.username }}</td>
+              <td><span class="pill {{ u.rol }}">{{ u.rol }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>📚 Actividades</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Nombre</th><th>Tipo</th><th>Asignatura</th><th>Entrega</th></tr></thead>
+          <tbody>
+            {% for a in actividades %}
+            <tr>
+              <td>{{ a.id }}</td><td>{{ a.nombre }}</td><td>{{ a.tipo }}</td>
+              <td>{{ a.asignatura }}</td><td>{{ a.fecha_entrega }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>📋 Asignaturas</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Nombre</th><th>Docente</th><th>Área</th></tr></thead>
+          <tbody>
+            {% for s in asignaturas %}
+            <tr><td>{{ s.id }}</td><td>{{ s.nombre }}</td><td>{{ s.docente }}</td><td>{{ s.area_academica }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Menú Principal — Sistema Académico</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0d1117;--panel:#161b22;--border:#30363d;
+      --text:#e6edf3;--muted:#8b949e;
+      --admin:#5e81f4;--docente:#3fb950;--usuario:#e8a045;
+    }
+    body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+
+    /* ── TOPBAR ── */
+    .topbar{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:1rem 2rem;background:var(--panel);
+      border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;
+    }
+    .topbar .logo{font-family:'Playfair Display',serif;font-size:1.15rem}
+    .topbar .logo span{color:var(--admin)}
+    .topbar .right{display:flex;align-items:center;gap:1rem}
+    .role-badge{
+      padding:.3rem .9rem;border-radius:999px;font-size:.75rem;font-weight:500;
+    }
+    .role-badge.admin  {background:rgba(94,129,244,.15);border:1px solid rgba(94,129,244,.4);color:var(--admin)}
+    .role-badge.docente{background:rgba(63,185,80,.15); border:1px solid rgba(63,185,80,.4); color:var(--docente)}
+    .role-badge.usuario{background:rgba(232,160,69,.15);border:1px solid rgba(232,160,69,.4);color:var(--usuario)}
+    .btn-logout{
+      padding:.3rem .9rem;border-radius:8px;font-size:.8rem;
+      background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.3);
+      color:#f85149;text-decoration:none;transition:all .2s;
+    }
+    .btn-logout:hover{background:rgba(248,81,73,.2)}
+
+    /* ── HERO ── */
+    .hero{
+      text-align:center;padding:3rem 2rem 2rem;
+      background:radial-gradient(ellipse 60% 40% at 50% 0%, rgba(94,129,244,.08), transparent);
+    }
+    .hero h1{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3vw,2.4rem);margin-bottom:.6rem}
+    .hero h1 span{color:var(--admin)}
+    .hero p{color:var(--muted);font-size:.9rem;max-width:480px;margin:0 auto}
+
+    /* ── GRID ── */
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+      gap:1.2rem;
+      max-width:1100px;margin:2rem auto;padding:0 2rem 3rem;
+    }
+
+    /* ── MODULE CARD ── */
+    .mod-card{
+      background:var(--panel);border:1px solid var(--border);border-radius:16px;
+      padding:1.6rem 1.4rem;text-decoration:none;color:var(--text);
+      display:flex;flex-direction:column;gap:.8rem;
+      transition:transform .25s, border-color .25s, box-shadow .25s;
+      position:relative;overflow:hidden;
+    }
+    .mod-card::before{
+      content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s;
+      background:var(--card-glow);
+    }
+    .mod-card:hover{transform:translateY(-4px);border-color:var(--card-color);box-shadow:0 8px 32px var(--card-shadow)}
+    .mod-card:hover::before{opacity:1}
+
+    .mod-icon{
+      width:48px;height:48px;border-radius:12px;
+      display:flex;align-items:center;justify-content:center;font-size:1.5rem;
+      background:var(--card-icon-bg);border:1px solid var(--card-border);
+      position:relative;z-index:1;
+    }
+    .mod-title{font-size:1rem;font-weight:600;position:relative;z-index:1}
+    .mod-desc{font-size:.78rem;color:var(--muted);line-height:1.55;position:relative;z-index:1}
+    .mod-actions{
+      display:flex;flex-wrap:wrap;gap:.35rem;position:relative;z-index:1;margin-top:.3rem;
+    }
+    .act-tag{
+      padding:.18rem .55rem;border-radius:999px;font-size:.68rem;font-weight:500;
+      background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted);
+    }
+    .mod-arrow{
+      position:absolute;bottom:1.2rem;right:1.2rem;
+      font-size:.9rem;color:var(--muted);opacity:0;
+      transition:opacity .2s,transform .2s;
+    }
+    .mod-card:hover .mod-arrow{opacity:1;transform:translateX(3px)}
+
+    /* Colors per module */
+    .m-sedes     {--card-color:#5e81f4;--card-shadow:rgba(94,129,244,.15);--card-glow:linear-gradient(135deg,rgba(94,129,244,.06),transparent);--card-icon-bg:rgba(94,129,244,.12);--card-border:rgba(94,129,244,.3)}
+    .m-actividad {--card-color:#e8a045;--card-shadow:rgba(232,160,69,.15);--card-glow:linear-gradient(135deg,rgba(232,160,69,.06),transparent);--card-icon-bg:rgba(232,160,69,.12);--card-border:rgba(232,160,69,.3)}
+    .m-asignatura{--card-color:#3fb950;--card-shadow:rgba(63,185,80,.15);--card-glow:linear-gradient(135deg,rgba(63,185,80,.06),transparent);--card-icon-bg:rgba(63,185,80,.12);--card-border:rgba(63,185,80,.3)}
+    .m-evidencia {--card-color:#db6be0;--card-shadow:rgba(219,107,224,.15);--card-glow:linear-gradient(135deg,rgba(219,107,224,.06),transparent);--card-icon-bg:rgba(219,107,224,.12);--card-border:rgba(219,107,224,.3)}
+    .m-responsable{--card-color:#f0a05a;--card-shadow:rgba(240,160,90,.15);--card-glow:linear-gradient(135deg,rgba(240,160,90,.06),transparent);--card-icon-bg:rgba(240,160,90,.12);--card-border:rgba(240,160,90,.3)}
+
+    /* ── LOCKED overlay for restricted roles ── */
+    .mod-card.locked{opacity:.45;pointer-events:none;filter:grayscale(.4)}
+    .lock-icon{position:absolute;top:.8rem;right:.8rem;font-size:.85rem;opacity:.6}
+
+    /* ── PERMISOS INFO ── */
+    .perms-bar{
+      max-width:1100px;margin:0 auto;padding:0 2rem 1rem;
+      display:flex;gap:.8rem;flex-wrap:wrap;
+    }
+    .perm-chip{
+      display:flex;align-items:center;gap:.4rem;
+      padding:.3rem .8rem;border-radius:999px;font-size:.75rem;
+      border:1px solid var(--border);color:var(--muted);background:rgba(255,255,255,.02);
+    }
+    .perm-dot{width:8px;height:8px;border-radius:50%}
+
+    @media(max-width:600px){.grid{grid-template-columns:1fr 1fr}.hero{padding:2rem 1rem 1rem}}
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="logo">🎓 Sistema <span>Académico</span></div>
+  <div class="right">
+    {% if session.rol == 'admin' %}
+      <span class="role-badge admin">🛡️ Administrador</span>
+    {% elif session.rol == 'docente' %}
+      <span class="role-badge docente">📚 Docente</span>
+    {% else %}
+      <span class="role-badge usuario">🎒 {{ session.nombre }}</span>
+    {% endif %}
+    <a href="/logout" class="btn-logout">Salir 🚪</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Módulos del <span>Sistema</span></h1>
+  <p>Selecciona un módulo para gestionar su información. Los permisos varían según tu rol.</p>
+</div>
+
+<!-- PERMISOS -->
+<div class="perms-bar">
+  <div class="perm-chip"><div class="perm-dot" style="background:#5e81f4"></div> Admin: acceso total</div>
+  <div class="perm-chip"><div class="perm-dot" style="background:#3fb950"></div> Docente: ver + editar propio</div>
+  <div class="perm-chip"><div class="perm-dot" style="background:#e8a045"></div> Usuario: solo lectura</div>
+</div>
+
+<!-- GRID DE MÓDULOS -->
+<div class="grid">
+
+  <!-- SEDES -->
+  <a href="/sedes" class="mod-card m-sedes">
+    <div class="mod-icon">📍</div>
+    <div class="mod-title">Sedes</div>
+    <div class="mod-desc">Gestión de las sedes institucionales, su ubicación y tipo.</div>
+    <div class="mod-actions">
+      <span class="act-tag">👁️ Ver</span>
+      {% if session.rol != 'usuario' %}
+      <span class="act-tag">➕ Crear</span>
+      <span class="act-tag">✏️ Editar</span>
+      <span class="act-tag">🗑️ Eliminar</span>
+      {% endif %}
+    </div>
+    <span class="mod-arrow">→</span>
+  </a>
+
+  <!-- ACTIVIDADES -->
+  <a href="/actividades" class="mod-card m-actividad">
+    <div class="mod-icon">📚</div>
+    <div class="mod-title">Actividades</div>
+    <div class="mod-desc">Registro de actividades académicas con tipo, descripción y fecha de entrega.</div>
+    <div class="mod-actions">
+      <span class="act-tag">➕ Crear</span>
+      <span class="act-tag">👁️ Ver</span>
+      {% if session.rol != 'usuario' %}<span class="act-tag">✏️ Editar</span><span class="act-tag">🗑️ Eliminar</span>{% endif %}
+    </div>
+    <span class="mod-arrow">→</span>
+  </a>
+
+  <!-- ASIGNATURAS -->
+  <a href="/asignaturas" class="mod-card m-asignatura">
+    <div class="mod-icon">📋</div>
+    <div class="mod-title">Asignaturas</div>
+    <div class="mod-desc">Materias del sistema con su área académica y docente asignado.</div>
+    <div class="mod-actions">
+      <span class="act-tag">➕ Crear</span>
+      <span class="act-tag">👁️ Ver</span>
+      {% if session.rol != 'usuario' %}<span class="act-tag">✏️ Editar</span><span class="act-tag">🗑️ Eliminar</span>{% endif %}
+    </div>
+    <span class="mod-arrow">→</span>
+  </a>
+
+  <!-- EVIDENCIAS -->
+  <a href="/evidencias" class="mod-card m-evidencia">
+    <div class="mod-icon">📎</div>
+    <div class="mod-title">Evidencias</div>
+    <div class="mod-desc">Archivos y documentos que los usuarios suben como evidencia de actividades.</div>
+    <div class="mod-actions">
+      <span class="act-tag">➕ Subir</span>
+      <span class="act-tag">👁️ Ver</span>
+      {% if session.rol == 'admin' %}<span class="act-tag">🗑️ Eliminar</span>{% endif %}
+    </div>
+    <span class="mod-arrow">→</span>
+  </a>
+
+  <!-- RESPONSABLES -->
+  <a href="/responsables" class="mod-card m-responsable">
+    <div class="mod-icon">👤</div>
+    <div class="mod-title">Responsables</div>
+    <div class="mod-desc">Personas responsables de actividades: nombre, cargo y actividad asignada.</div>
+    <div class="mod-actions">
+      <span class="act-tag">👁️ Ver</span>
+      {% if session.rol != 'usuario' %}
+      <span class="act-tag">➕ Crear</span>
+      <span class="act-tag">✏️ Editar</span>
+      <span class="act-tag">🗑️ Eliminar</span>
+      {% endif %}
+    </div>
+    <span class="mod-arrow">→</span>
+  </a>
+
+</div>
+
+</body>
+</html>

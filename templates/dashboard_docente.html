@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Docente — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0d1117;--panel:#161b22;--border:#30363d;--accent:#3fb950;--text:#e6edf3;--muted:#8b949e}
+    body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+    .layout{display:flex;min-height:100vh}
+    .sidebar{width:220px;background:var(--panel);border-right:1px solid var(--border);
+      padding:1.5rem 1rem;display:flex;flex-direction:column;gap:.3rem;flex-shrink:0}
+    .sidebar .logo{font-family:'Playfair Display',serif;font-size:1.1rem;padding:.5rem .8rem 1.2rem;
+      border-bottom:1px solid var(--border);margin-bottom:.5rem}
+    .sidebar .logo span{color:var(--accent)}
+    .nav-item{padding:.6rem .8rem;border-radius:8px;font-size:.85rem;color:var(--muted);
+      cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.6rem}
+    .nav-item:hover,.nav-item.active{background:rgba(63,185,80,.12);color:var(--accent)}
+    .sidebar .logout{margin-top:auto;padding:.6rem .8rem;border-radius:8px;font-size:.85rem;
+      color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.6rem;transition:all .2s;text-decoration:none}
+    .sidebar .logout:hover{background:rgba(248,81,73,.1);color:#f85149}
+    .main{flex:1;padding:2rem;overflow-y:auto}
+    .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem}
+    .topbar h1{font-family:'Playfair Display',serif;font-size:1.5rem}
+    .badge{padding:.3rem .9rem;background:rgba(63,185,80,.15);border:1px solid rgba(63,185,80,.4);
+      border-radius:999px;font-size:.75rem;color:var(--accent)}
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem}
+    .stat{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1.2rem;transition:transform .2s}
+    .stat:hover{transform:translateY(-2px)}
+    .stat .num{font-family:'Playfair Display',serif;font-size:2rem;color:var(--accent)}
+    .stat .lbl{font-size:.78rem;color:var(--muted);margin-top:.2rem}
+    .section{margin-bottom:2rem}
+    .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem}
+    .section h2{font-size:.9rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+    .btn-add{padding:.35rem .9rem;background:rgba(63,185,80,.15);border:1px solid rgba(63,185,80,.4);
+      border-radius:8px;color:var(--accent);font-size:.78rem;cursor:pointer;transition:all .2s;text-decoration:none}
+    .btn-add:hover{background:rgba(63,185,80,.25)}
+    .table-wrap{background:var(--panel);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    table{width:100%;border-collapse:collapse;font-size:.85rem}
+    th{padding:.75rem 1rem;text-align:left;font-size:.72rem;text-transform:uppercase;
+      letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border)}
+    td{padding:.7rem 1rem;border-bottom:1px solid rgba(48,54,61,.5)}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:rgba(255,255,255,.02)}
+    .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1.2rem;transition:all .2s}
+    .card:hover{border-color:var(--accent);transform:translateY(-2px)}
+    .card h3{font-size:.95rem;margin-bottom:.4rem}
+    .card p{font-size:.78rem;color:var(--muted);line-height:1.5}
+    .card .tag{display:inline-block;margin-top:.6rem;padding:.2rem .65rem;
+      background:rgba(63,185,80,.12);border-radius:999px;font-size:.72rem;color:var(--accent)}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="logo">🎓 <span>Sistema</span><br><small style="font-size:.75rem;color:var(--muted)">Académico</small></div>
+    <div class="nav-item active">📚 Dashboard</div>
+    <div class="nav-item">📋 Mis Asignaturas</div>
+    <div class="nav-item">📝 Actividades</div>
+    <div class="nav-item">📎 Evidencias</div>
+    <div class="nav-item">👥 Mis Alumnos</div>
+    <a href="/logout" class="logout">🚪 Cerrar sesión</a>
+  </nav>
+
+  <main class="main">
+    <div class="topbar">
+      <h1>Panel del <span style="color:var(--accent)">Docente</span></h1>
+      <span class="badge">📚 {{ session.nombre }}</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="num">{{ asignaturas|length }}</div><div class="lbl">Mis asignaturas</div></div>
+      <div class="stat"><div class="num">{{ actividades|length }}</div><div class="lbl">Actividades creadas</div></div>
+      <div class="stat"><div class="num">0</div><div class="lbl">Evidencias por revisar</div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <h2>📋 Mis Asignaturas</h2>
+        <a href="#" class="btn-add">+ Nueva asignatura</a>
+      </div>
+      <div class="cards">
+        {% for s in asignaturas %}
+        <div class="card">
+          <h3>{{ s.nombre }}</h3>
+          <p>Área: {{ s.area_academica }}</p>
+          <span class="tag">{{ s.docente }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <h2>📝 Actividades</h2>
+        <a href="#" class="btn-add">+ Nueva actividad</a>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Nombre</th><th>Tipo</th><th>Asignatura</th><th>Fecha entrega</th></tr></thead>
+          <tbody>
+            {% for a in actividades %}
+            <tr>
+              <td>{{ a.nombre }}</td><td>{{ a.tipo }}</td>
+              <td>{{ a.asignatura }}</td><td>{{ a.fecha_entrega }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

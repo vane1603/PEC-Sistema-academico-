@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Usuario — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0d1117;--panel:#161b22;--border:#30363d;--accent:#e8a045;--text:#e6edf3;--muted:#8b949e}
+    body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+    .layout{display:flex;min-height:100vh}
+    .sidebar{width:220px;background:var(--panel);border-right:1px solid var(--border);
+      padding:1.5rem 1rem;display:flex;flex-direction:column;gap:.3rem;flex-shrink:0}
+    .sidebar .logo{font-family:'Playfair Display',serif;font-size:1.1rem;padding:.5rem .8rem 1.2rem;
+      border-bottom:1px solid var(--border);margin-bottom:.5rem}
+    .sidebar .logo span{color:var(--accent)}
+    .nav-item{padding:.6rem .8rem;border-radius:8px;font-size:.85rem;color:var(--muted);
+      cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.6rem}
+    .nav-item:hover,.nav-item.active{background:rgba(232,160,69,.12);color:var(--accent)}
+    .sidebar .logout{margin-top:auto;padding:.6rem .8rem;border-radius:8px;font-size:.85rem;
+      color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.6rem;transition:all .2s;text-decoration:none}
+    .sidebar .logout:hover{background:rgba(248,81,73,.1);color:#f85149}
+    .main{flex:1;padding:2rem;overflow-y:auto}
+    .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem}
+    .topbar h1{font-family:'Playfair Display',serif;font-size:1.5rem}
+    .badge{padding:.3rem .9rem;background:rgba(232,160,69,.15);border:1px solid rgba(232,160,69,.4);
+      border-radius:999px;font-size:.75rem;color:var(--accent)}
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem}
+    .stat{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1.2rem;transition:transform .2s}
+    .stat:hover{transform:translateY(-2px)}
+    .stat .num{font-family:'Playfair Display',serif;font-size:2rem;color:var(--accent)}
+    .stat .lbl{font-size:.78rem;color:var(--muted);margin-top:.2rem}
+    .section{margin-bottom:2rem}
+    .section h2{font-size:.9rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem}
+    .act-list{display:flex;flex-direction:column;gap:.7rem}
+    .act-item{background:var(--panel);border:1px solid var(--border);border-radius:12px;
+      padding:1rem 1.2rem;display:flex;justify-content:space-between;align-items:center;transition:all .2s}
+    .act-item:hover{border-color:var(--accent);transform:translateX(4px)}
+    .act-item .info h3{font-size:.9rem;margin-bottom:.2rem}
+    .act-item .info p{font-size:.75rem;color:var(--muted)}
+    .act-item .right-col{text-align:right;flex-shrink:0}
+    .act-item .fecha{font-size:.75rem;color:var(--muted);margin-bottom:.4rem}
+    .btn-subir{padding:.3rem .8rem;background:rgba(232,160,69,.15);border:1px solid rgba(232,160,69,.4);
+      border-radius:8px;color:var(--accent);font-size:.75rem;cursor:pointer;transition:all .2s}
+    .btn-subir:hover{background:rgba(232,160,69,.25)}
+    .empty{padding:2rem;text-align:center;color:var(--muted);font-size:.85rem}
+    .ev-list{display:flex;flex-direction:column;gap:.6rem}
+    .ev-item{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+      padding:.8rem 1.1rem;display:flex;gap:.8rem;align-items:flex-start}
+    .ev-item .ico{font-size:1.2rem;flex-shrink:0;margin-top:.1rem}
+    .ev-item h4{font-size:.85rem;margin-bottom:.2rem}
+    .ev-item p{font-size:.75rem;color:var(--muted)}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="logo">🎓 <span>Sistema</span><br><small style="font-size:.75rem;color:var(--muted)">Académico</small></div>
+    <div class="nav-item active">🏠 Inicio</div>
+    <div class="nav-item">📚 Mis Actividades</div>
+    <div class="nav-item">📎 Mis Evidencias</div>
+    <div class="nav-item">📋 Asignaturas</div>
+    <div class="nav-item">👤 Mi Perfil</div>
+    <a href="/logout" class="logout">🚪 Cerrar sesión</a>
+  </nav>
+
+  <main class="main">
+    <div class="topbar">
+      <h1>Hola, <span style="color:var(--accent)">{{ session.nombre }}</span> 👋</h1>
+      <span class="badge">🎒 Alumno</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="num">{{ actividades|length }}</div><div class="lbl">Actividades pendientes</div></div>
+      <div class="stat"><div class="num">{{ evidencias|length }}</div><div class="lbl">Evidencias entregadas</div></div>
+      <div class="stat"><div class="num">0</div><div class="lbl">Calificaciones</div></div>
+    </div>
+
+    <div class="section">
+      <h2>📚 Actividades Pendientes</h2>
+      <div class="act-list">
+        {% for a in actividades %}
+        <div class="act-item">
+          <div class="info">
+            <h3>{{ a.nombre }}</h3>
+            <p>{{ a.asignatura }} &nbsp;·&nbsp; {{ a.tipo }}</p>
+          </div>
+          <div class="right-col">
+            <div class="fecha">📅 {{ a.fecha_entrega }}</div>
+            <button class="btn-subir">Subir evidencia</button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>📎 Mis Evidencias</h2>
+      {% if evidencias %}
+        <div class="ev-list">
+          {% for e in evidencias %}
+          <div class="ev-item">
+            <div class="ico">📎</div>
+            <div>
+              <h4>{{ e.actividad }}</h4>
+              <p>{{ e.tipo_evidencia }} — {{ e.descripcion }}</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty">Aún no has subido ninguna evidencia.</div>
+      {% endif %}
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Responsables — Sistema Académico</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0d1117;--panel:#161b22;--border:#30363d;
+      --accent:#f0a05a;--text:#e6edf3;--muted:#8b949e;--input-bg:#0d1117;
+      --danger:#f85149;--success:#3fb950;
+    }
+    body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+
+    .topbar{display:flex;justify-content:space-between;align-items:center;
+      padding:.85rem 2rem;background:var(--panel);border-bottom:1px solid var(--border);
+      position:sticky;top:0;z-index:10}
+    .breadcrumb{display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--muted)}
+    .breadcrumb a{color:var(--muted);text-decoration:none;transition:color .2s}
+    .breadcrumb a:hover{color:var(--accent)}
+    .breadcrumb span{color:var(--text);font-weight:500}
+    .badge{padding:.25rem .8rem;border-radius:999px;font-size:.72rem;
+      background:rgba(240,160,90,.15);border:1px solid rgba(240,160,90,.4);color:var(--accent)}
+
+    .content{max-width:1000px;margin:0 auto;padding:2rem}
+
+    .page-header{display:flex;justify-content:space-between;align-items:flex-start;
+      margin-bottom:1.8rem;flex-wrap:wrap;gap:1rem}
+    .page-header h1{font-family:'Playfair Display',serif;font-size:1.6rem}
+    .page-header h1 span{color:var(--accent)}
+    .page-header p{font-size:.83rem;color:var(--muted);margin-top:.3rem}
+
+    .flash{padding:.65rem 1rem;border-radius:8px;font-size:.82rem;margin-bottom:1.2rem}
+    .flash.success{background:rgba(63,185,80,.12);border:1px solid rgba(63,185,80,.4);color:var(--success)}
+    .flash.error  {background:rgba(248,81,73,.12);border:1px solid rgba(248,81,73,.4);color:var(--danger)}
+
+    /* Botón nuevo */
+    .btn-new{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.2rem;
+      border-radius:9px;font-size:.85rem;font-weight:500;background:var(--accent);
+      color:#0d1117;border:none;cursor:pointer;box-shadow:0 2px 12px rgba(240,160,90,.25);
+      transition:all .2s}
+    .btn-new:hover{opacity:.88;transform:translateY(-1px)}
+
+    /* Ocultar según rol */
+    .staff-only{display:{% if session.rol == 'usuario' %}none{% else %}inline-flex{% endif %}}
+    .admin-only{display:{% if session.rol != 'admin' %}none{% else %}inline-flex{% endif %}}
+
+    /* Formulario */
+    .form-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;
+      padding:1.5rem;margin-bottom:2rem;display:none}
+    .form-card.open{display:block}
+    .form-card h2{font-size:.9rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;
+      color:var(--muted);margin-bottom:1.2rem}
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+    .field label{display:block;font-size:.75rem;font-weight:500;text-transform:uppercase;
+      letter-spacing:.05em;color:var(--muted);margin-bottom:.4rem}
+    .field input{width:100%;padding:.65rem .9rem;background:var(--input-bg);
+      border:1px solid var(--border);border-radius:9px;color:var(--text);
+      font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;
+      transition:border-color .2s,box-shadow .2s}
+    .field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(240,160,90,.15)}
+    .field input::placeholder{color:#484f58}
+    .field select{width:100%;padding:.65rem .9rem;background:var(--input-bg);
+      border:1px solid var(--border);border-radius:9px;color:var(--text);
+      font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;
+      appearance:none;-webkit-appearance:none;transition:border-color .2s,box-shadow .2s}
+    .field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(240,160,90,.15)}
+    .field select option{background-color:#0d1117;color:var(--text)}
+    .field textarea{
+  width:100%;
+  padding:.65rem .9rem;
+  background:var(--input-bg);
+  border:1px solid var(--border);
+  border-radius:9px;
+  color:var(--text);
+  font-family:'DM Sans',sans-serif;
+  font-size:.88rem;
+  outline:none;
+  min-height:120px;
+  resize:vertical;
+}
+    .form-actions{display:flex;gap:.7rem;margin-top:1.2rem}
+
+    /* Botones generales */
+    .btn{padding:.55rem 1.2rem;border-radius:9px;font-family:'DM Sans',sans-serif;
+      font-size:.85rem;font-weight:500;cursor:pointer;border:none;transition:all .2s}
+    .btn-primary{background:var(--accent);color:#0d1117}
+    .btn-primary:hover{opacity:.88}
+    .btn-secondary{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--border)}
+    .btn-secondary:hover{background:rgba(255,255,255,.08);color:var(--text)}
+    .btn-danger{background:rgba(248,81,73,.12);color:var(--danger);border:1px solid rgba(248,81,73,.3)}
+    .btn-danger:hover{background:rgba(248,81,73,.22)}
+    .btn-sm{padding:.3rem .75rem;font-size:.75rem;border-radius:7px}
+
+
+    /* Tabla */
+    .table-wrap{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+    .table-header{display:flex;justify-content:space-between;align-items:center;
+      padding:1rem 1.2rem;border-bottom:1px solid var(--border)}
+    .table-header h2{font-size:.88rem;font-weight:500;letter-spacing:.05em;
+      text-transform:uppercase;color:var(--muted)}
+    .search-wrap{position:relative}
+    .search-wrap::before{content:'🔍';position:absolute;left:.5rem;top:50%;
+      transform:translateY(-50%);font-size:.75rem;pointer-events:none}
+    .search-wrap input{padding:.4rem .8rem .4rem 2rem;background:var(--input-bg);
+      border:1px solid var(--border);border-radius:8px;color:var(--text);
+      font-size:.8rem;outline:none;width:180px;transition:border-color .2s}
+    .search-wrap input:focus{border-color:var(--accent)}
+
+    table{width:100%;border-collapse:collapse;font-size:.85rem}
+    th{padding:.75rem 1rem;text-align:left;font-size:.7rem;text-transform:uppercase;
+      letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border)}
+    td{padding:.7rem 1rem;border-bottom:1px solid rgba(48,54,61,.5);vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:rgba(255,255,255,.015)}
+    .td-actions{display:flex;gap:.4rem}
+    .empty td{text-align:center;color:var(--muted);padding:2.5rem;font-size:.85rem}
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="breadcrumb">
+    <a href="/menu">🏠 Menú</a>
+    <span style="color:var(--border)">›</span>
+    <span>👤 Responsables</span>
+  </div>
+  <span class="badge">
+    {% if session.rol == 'admin' %}🛡️{% elif session.rol == 'docente' %}📚{% else %}🎒{% endif %}
+    {{ session.nombre }}
+  </span>
+</header>
+
+<div class="content">
+
+  <div class="page-header">
+    <div>
+      <h1>👤 <span>Responsables</span></h1>
+      <p>Gestión del personal responsable de actividades</p>
+    </div>
+    <button class="btn-new staff-only" onclick="toggleForm()">➕ Nuevo Responsable</button>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="flash {{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <!-- FORMULARIO CREAR / EDITAR -->
+  <div class="form-card" id="formCard">
+    <h2 id="formTitle">➕ Nuevo Responsable</h2>
+    <form method="POST" action="/responsables/crear" id="crudForm">
+      <input type="hidden" name="id" id="fieldId"/>
+      <div class="form-grid">
+        <div class="field">
+          <label>Nombre completo</label>
+          <input type="text" id="f-nombre" name="nombre" placeholder="Ej. Juan Pérez" required/>
+        </div>
+        <div class="field">
+          <label>Cargo</label>
+          <input type="text" id="f-cargo" name="cargo" placeholder="Ej. Supervisor"/>
+        </div>
+        <div class="field">
+          <label>Asignatura relacionada</label>
+          <select id="f-asignatura-id" name="asignatura_id">
+            <option value="">— Sin asignatura —</option>
+            {% for a in asignaturas %}
+            <option value="{{ a.id }}">{{ a.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" id="btnSubmit">Guardar</button>
+        <button type="button" class="btn btn-secondary" onclick="toggleForm()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- TABLA -->
+  <div class="table-wrap">
+    <div class="table-header">
+      <h2>Registros</h2>
+      <div class="search-wrap">
+        <input type="text" id="searchInput" placeholder="Buscar..." onkeyup="filtrar()"/>
+      </div>
+    </div>
+    <table id="tabla">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nombre</th>
+          <th>Cargo</th>
+          <th>Asignatura</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if registros %}
+          {% for r in registros %}
+          <tr>
+            <td style="color:var(--muted)">{{ r.id }}</td>
+            <td><strong>{{ r.nombre }}</strong></td>
+            <td>{{ r.cargo }}</td>
+            <td>{{ r.asignatura_nombre or '—' }}</td>
+            <td>
+              <div class="td-actions">
+                <button class="btn btn-sm btn-secondary staff-only"
+                  onclick="editar({{ r.id }}, '{{ r.nombre }}', '{{ r.cargo }}', {{ r.asignatura_id or 'null' }})">
+                  ✏️ Editar
+                </button>
+                <form method="POST" action="/responsables/eliminar/{{ r.id }}" style="display:inline"
+                  onsubmit="return confirm('¿Eliminar a {{ r.nombre }}?')">
+                  <button type="submit" class="btn btn-sm btn-danger admin-only">🗑️ Eliminar</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr class="empty"><td colspan="5">No hay responsables registrados aún.</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+  function toggleForm() {
+    const card = document.getElementById('formCard');
+    card.classList.toggle('open');
+    if (!card.classList.contains('open')) resetForm();
+  }
+
+  function resetForm() {
+    document.getElementById('crudForm').reset();
+    document.getElementById('fieldId').value = '';
+    document.getElementById('formTitle').textContent = '➕ Nuevo Responsable';
+    document.getElementById('btnSubmit').textContent = 'Guardar';
+    document.getElementById('crudForm').action = '/responsables/crear';
+  }
+
+  function editar(id, nombre, cargo, asignatura_id) {
+    document.getElementById('fieldId').value         = id;
+    document.getElementById('f-nombre').value        = nombre;
+    document.getElementById('f-cargo').value         = cargo;
+    document.getElementById('f-asignatura-id').value = asignatura_id || '';
+    document.getElementById('formTitle').textContent  = '✏️ Editar Responsable';
+    document.getElementById('btnSubmit').textContent  = 'Actualizar';
+    document.getElementById('crudForm').action = '/responsables/editar';
+    const card = document.getElementById('formCard');
+    card.classList.add('open');
+    card.scrollIntoView({behavior:'smooth'});
+  }
+
+  function filtrar() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    document.querySelectorAll('#tabla tbody tr:not(.empty)').forEach(row => {
+      row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  }
+</script>
+</body>
+</html>
