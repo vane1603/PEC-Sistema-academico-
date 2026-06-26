@@ -553,6 +553,8 @@ def responsables_eliminar(id):
 #  ARRANQUE
 # ══════════════════════════════════════════════════════
 
+# Inicializa la base de datos tanto en Render como en ejecución local
+init_db()
+
 if __name__ == '__main__':
-    init_db()
     app.run(debug=True)
